@@ -1,8 +1,7 @@
 import Phaser from "phaser";
 import { BASE_HEIGHT, BASE_WIDTH, DEFAULT_SEED, TILE_SIZE } from "@vov/core";
-import { CellularFire, WindController } from "../sim";
-import { FireRenderer } from "../render/FireRenderer";
-import { SOURCE_KEY } from "../render/tileset";
+import { CellularFire, WindController } from "@vov/fire";
+import { TOWN_KEY, WorldRenderer } from "@vov/view";
 
 export interface SceneStats {
   fps: number;
@@ -27,7 +26,7 @@ const SPEEDS = [0.5, 1, 2, 4];
 export class MainScene extends Phaser.Scene {
   private fire!: CellularFire;
   private wind!: WindController;
-  private fireView!: FireRenderer;
+  private fireView!: WorldRenderer;
   private size = 128;
   private seed = DEFAULT_SEED;
   private paused = false;
@@ -52,13 +51,20 @@ export class MainScene extends Phaser.Scene {
   }
 
   preload(): void {
-    this.load.image(SOURCE_KEY, "assets/kenney/tilemap_packed.png");
+    this.load.image(TOWN_KEY, "assets/kenney/tilemap_packed.png");
   }
 
   create(): void {
     this.fire = new CellularFire({ width: this.size, height: this.size, seed: this.seed });
     this.wind = new WindController(this.fire, this.seed, 0, 0.6);
-    this.fireView = new FireRenderer(this, this.fire);
+    this.fireView = new WorldRenderer(this, {
+      width: this.fire.width,
+      height: this.fire.height,
+      vegetation: this.fire.vegetation,
+      states: this.fire.states,
+      isFirebreak: (x, y) => this.fire.isFirebreak(x, y),
+      saplingStage: () => -1,
+    });
 
     const mapPx = this.size * TILE_SIZE;
     const cam = this.cameras.main;

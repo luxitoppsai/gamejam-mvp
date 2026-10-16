@@ -51,6 +51,7 @@ export class CellularFire implements FireModel {
   readonly burnLeft: Uint8Array;
 
   private readonly rng: () => number;
+  private readonly firebreak: Uint8Array;
   private readonly pending: Uint8Array;
   private readonly pendingList: Int32Array;
   private readonly windMul = new Float64Array(8).fill(1);
@@ -67,6 +68,7 @@ export class CellularFire implements FireModel {
     const n = width * height;
     this.states = new Uint8Array(n);
     this.burnLeft = new Uint8Array(n);
+    this.firebreak = new Uint8Array(n);
     this.pending = new Uint8Array(n);
     this.pendingList = new Int32Array(n);
     this.vegetation = opts.vegetation ?? generateVegetation(width, height, this.seed);
@@ -99,9 +101,17 @@ export class CellularFire implements FireModel {
   ignite(x: number, y: number): void {
     if (!this.inBounds(x, y)) return;
     const i = y * this.width + x;
-    if (this.states[i] !== UNBURNED) return;
+    if (this.states[i] !== UNBURNED || this.firebreak[i]) return;
     this.states[i] = BURNING;
     this.burnLeft[i] = BURN_STEPS[this.vegetation[i]!]!;
+  }
+
+  setFirebreak(x: number, y: number, on: boolean): void {
+    if (this.inBounds(x, y)) this.firebreak[y * this.width + x] = on ? 1 : 0;
+  }
+
+  isFirebreak(x: number, y: number): boolean {
+    return this.inBounds(x, y) && this.firebreak[y * this.width + x] === 1;
   }
 
   /** Quita `amount` pasos de combustión restantes; si llega a 0 la celda queda quemada (ceniza). */
@@ -148,7 +158,7 @@ export class CellularFire implements FireModel {
   }
 
   private advance(): void {
-    const { width: w, height: h, states, burnLeft, vegetation, pending, pendingList, rng, windMul } = this;
+    const { width: w, height: h, states, burnLeft, vegetation, pending, pendingList, rng, windMul, firebreak } = this;
     let nPending = 0;
     for (let y = 0; y < h; y++) {
       for (let x = 0; x < w; x++) {
@@ -159,7 +169,7 @@ export class CellularFire implements FireModel {
           const ny = y + DY[k]!;
           if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
           const j = ny * w + nx;
-          if (states[j] !== UNBURNED || pending[j]) continue;
+          if (states[j] !== UNBURNED || pending[j] || firebreak[j]) continue;
           const p = SPREAD_PROBABILITY[vegetation[j]!]! * NEIGHBOR_WEIGHT[k]! * windMul[k]!;
           if (rng() < p) {
             pending[j] = 1;

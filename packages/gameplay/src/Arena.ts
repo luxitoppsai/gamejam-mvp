@@ -1,10 +1,9 @@
 import { TILE_SIZE } from "@vov/core";
-import type { PlayerCommand } from "@vov/core";
-import { MockFireModel } from "../mock/MockFireModel";
-import { ITEMS, roleOf, usesWater } from "../roles/items";
-import type { ItemKind, Role } from "../roles/items";
-import { PARAMS } from "../roles/params";
-import { generateTerrain } from "./map";
+import type { FireModel, PlayerCommand } from "@vov/core";
+import { MockFireModel } from "./MockFireModel";
+import { ITEMS, roleOf, usesWater } from "./roles/items";
+import type { ItemKind, Role } from "./roles/items";
+import { PARAMS } from "./roles/params";
 
 export interface PlayerInput {
   moveX: number;
@@ -38,63 +37,51 @@ export interface PlayerState {
   action: { kind: "dig" | "plant"; cx: number; cy: number; t: number; total: number } | null;
 }
 
-export type ArenaEvent =
-  | { type: "command"; playerId: number; command: PlayerCommand }
-  | { type: "transfer"; fromId: number; toId: number }
-  | { type: "refill"; playerId: number };
+export type ArenaEvent = { type: "command"; playerId: number; command: PlayerCommand };
 
-export interface ArenaOptions {
+export interface ArenaOptions<F extends FireModel = FireModel> {
   width?: number;
   height?: number;
-  seed?: number;
-  /** Si es false no se colocan ítems, fuentes ni fuego iniciales (para pruebas). */
-  populate?: boolean;
+  /** Modelo de fuego. Por defecto un MockFireModel del tamaño de la arena. */
+  fire?: F;
+  /** Obstáculos: >0 es un árbol que bloquea mientras no se queme. Por defecto, mapa libre. */
+  terrain?: Uint8Array;
+  /** Tile donde aparece el primer jugador (los demás junto a él). */
+  spawn?: { x: number; y: number };
 }
 
 /**
- * Mundo de la PoC 2: lógica pura (sin Phaser). Resuelve movimiento, ítems/roles dinámicos,
+ * Mundo jugable: lógica pura (sin Phaser). Resuelve movimiento, ítems/roles dinámicos,
  * agua, zanjas y siembra, y emite PlayerCommand. La escena solo traduce entrada y dibuja.
+ * Sirve igual con el fuego mock (PoC 2) que con el autómata real (juego).
  */
-export class Arena {
+export class Arena<F extends FireModel = FireModel> {
   readonly width: number;
   readonly height: number;
-  readonly fire: MockFireModel;
+  readonly fire: F;
   readonly terrain: Uint8Array;
   readonly fountains: { x: number; y: number }[] = [];
   readonly players: PlayerState[] = [];
   readonly groundItems: ItemInstance[] = [];
-  readonly saplings = new Set<number>();
+  /** Brotes: índice de celda -> segundos desde que se plantó. */
+  readonly saplings = new Map<number, number>();
+  private readonly spawn: { x: number; y: number };
   private listeners: ((e: ArenaEvent) => void)[] = [];
   private prevInteract = new Map<number, boolean>();
   private cmdTimers = new Map<number, number>();
   private nextUid = 1;
 
-  constructor(opts: ArenaOptions = {}) {
+  constructor(opts: ArenaOptions<F> = {}) {
     this.width = opts.width ?? 40;
     this.height = opts.height ?? 28;
-    this.fire = new MockFireModel(this.width, this.height);
-    const populate = opts.populate ?? true;
-    const clear = (x: number, y: number) =>
-      !populate || x <= 14 || (y >= 13 && y <= 15) || Math.hypot(x - 36, y - 14) < 4;
-    this.terrain = generateTerrain(this.width, this.height, opts.seed ?? 1337, clear);
-    if (populate) this.populate();
+    this.fire = opts.fire ?? (new MockFireModel(this.width, this.height) as unknown as F);
+    this.terrain = opts.terrain ?? new Uint8Array(this.width * this.height);
+    if (this.terrain.length !== this.width * this.height) throw new RangeError("terrain no coincide con width*height");
+    this.spawn = opts.spawn ?? { x: 4, y: 13 };
   }
 
   onEvent(fn: (e: ArenaEvent) => void): void {
     this.listeners.push(fn);
-  }
-
-  /** Ítems, fuentes y primer foco de la demo. */
-  private populate(): void {
-    const items: [ItemKind, number, number][] = [
-      ["hose", 9, 12], ["hose", 9, 16], ["extinguisher", 10, 14],
-      ["backpack", 8, 13], ["backpack", 8, 15],
-      ["shovel", 11, 12], ["shovel", 11, 16],
-      ["seeds", 12, 14], ["radio", 12, 12],
-    ];
-    for (const [kind, tx, ty] of items) this.spawnItem(kind, (tx + 0.5) * TILE_SIZE, (ty + 0.5) * TILE_SIZE);
-    this.fountains.push({ x: 2, y: 9 }, { x: 2, y: 19 });
-    this.fire.ignite(36, 14);
   }
 
   spawnItem(kind: ItemKind, x: number, y: number): ItemInstance {
@@ -107,8 +94,8 @@ export class Arena {
     const i = this.players.length;
     const p: PlayerState = {
       id,
-      x: (4 + (i % 2) * 1.5 + 0.5) * TILE_SIZE,
-      y: (13 + Math.floor(i / 2) * 2 + 0.5) * TILE_SIZE,
+      x: (this.spawn.x + (i % 2) * 1.5 + 0.5) * TILE_SIZE,
+      y: (this.spawn.y + Math.floor(i / 2) * 2 + 0.5) * TILE_SIZE,
       fx: 1,
       fy: 0,
       item: null,
@@ -138,11 +125,25 @@ export class Arena {
   /** Un tile es obstáculo si está fuera del mapa o tiene árbol sin quemar. */
   solidAt(cx: number, cy: number): boolean {
     if (cx < 0 || cy < 0 || cx >= this.width || cy >= this.height) return true;
-    return this.terrain[cy * this.width + cx]! > 0 && this.fire.states[cy * this.width + cx] !== 2;
+    return this.terrain[cy * this.width + cx]! > 0 && this.fire.getCell(cx, cy).state !== "burned";
   }
 
   hasSapling(cx: number, cy: number): boolean {
     return this.saplings.has(cy * this.width + cx);
+  }
+
+  /** Etapa de crecimiento del brote (0..growthStages-1), o -1 si no hay brote. */
+  saplingStage(cx: number, cy: number): number {
+    const age = this.saplings.get(cy * this.width + cx);
+    return age === undefined ? -1 : Math.min(PARAMS.growthStages - 1, Math.floor(age / PARAMS.growthSeconds));
+  }
+
+  /** Cantidad de brotes que ya son árbol adulto. */
+  matureCount(): number {
+    let n = 0;
+    const done = PARAMS.growthSeconds * (PARAMS.growthStages - 1);
+    for (const age of this.saplings.values()) if (age >= done) n++;
+    return n;
   }
 
   update(dt: number, inputs: ReadonlyMap<number, PlayerInput>): void {
@@ -159,6 +160,7 @@ export class Arena {
       }
     }
     this.fire.step(dt);
+    for (const [i, age] of this.saplings) this.saplings.set(i, age + dt);
   }
 
   // ---- movimiento ----
@@ -232,8 +234,7 @@ export class Arena {
         break;
       case "shovel":
         this.longAction(p, "dig", PARAMS.digSeconds, dt, (cx, cy) => {
-          const i = cy * this.width + cx;
-          return !this.solidAt(cx, cy) && !this.fire.isFirebreak(cx, cy) && this.fire.states[i] !== 1;
+          return !this.solidAt(cx, cy) && !this.fire.isFirebreak(cx, cy) && this.fire.getCell(cx, cy).state !== "burning";
         }, (cx, cy) => {
           this.fire.setFirebreak(cx, cy, true);
           this.emit(p, { type: "digFirebreak", x: cx, y: cy });
@@ -241,10 +242,9 @@ export class Arena {
         break;
       case "seeds":
         this.longAction(p, "plant", PARAMS.plantSeconds, dt, (cx, cy) => {
-          const i = cy * this.width + cx;
-          return !this.solidAt(cx, cy) && !this.fire.isFirebreak(cx, cy) && this.fire.states[i] === 2 && !this.hasSapling(cx, cy);
+          return !this.solidAt(cx, cy) && !this.fire.isFirebreak(cx, cy) && this.fire.getCell(cx, cy).state === "burned" && !this.hasSapling(cx, cy);
         }, (cx, cy) => {
-          this.saplings.add(cy * this.width + cx);
+          this.saplings.set(cy * this.width + cx, 0);
           this.emit(p, { type: "plant", x: cx, y: cy, species: "nativa" });
         });
         break;
@@ -292,13 +292,13 @@ export class Arena {
       const amount = Math.min(PARAMS.transferRate * dt, pack.water, cap - q.item.water);
       pack.water -= amount;
       q.item.water += amount;
-      this.listeners.forEach((fn) => fn({ type: "transfer", fromId: p.id, toId: q.id }));
+      if (this.cmdReady(p.id, dt)) this.emit(p, { type: "transferWater", toPlayer: q.id });
       return;
     }
     const cap = ITEMS.backpack.capacity;
     if (pack.water < cap && this.nearFountain(p)) {
       pack.water = Math.min(cap, pack.water + PARAMS.fountainRate * dt);
-      this.listeners.forEach((fn) => fn({ type: "refill", playerId: p.id }));
+      if (this.cmdReady(p.id, dt)) this.emit(p, { type: "refill" });
     }
   }
 

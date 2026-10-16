@@ -1,12 +1,9 @@
 import Phaser from "phaser";
 import { BASE_HEIGHT, BASE_WIDTH, TILE_SIZE } from "@vov/core";
-import { Arena } from "../arena/Arena";
-import type { ArenaEvent } from "../arena/Arena";
-import { InputSources } from "../input/InputSources";
-import type { Slot } from "../input/InputSources";
-import { buildFountain, DUNGEON_KEY, FOUNTAIN_KEY, TOWN_KEY } from "../render/tileset";
-import { TerrainRenderer } from "../render/TerrainRenderer";
-import { ITEMS, ROLES, roleOf } from "../roles/items";
+import { createDemoArena, ITEMS, ROLES, roleOf } from "@vov/gameplay";
+import type { Arena, ArenaEvent, MockFireModel } from "@vov/gameplay";
+import { buildFountain, DUNGEON_KEY, FOUNTAIN_KEY, InputSources, TOWN_KEY, WorldRenderer } from "@vov/view";
+import type { Slot } from "@vov/view";
 
 /** Frames de Kenney Tiny Dungeon (referencia) para los 4 brigadistas. */
 const PLAYER_FRAMES = [85, 99, 112, 86];
@@ -35,8 +32,8 @@ interface View {
 }
 
 export class MainScene extends Phaser.Scene {
-  arena!: Arena;
-  private terrain!: TerrainRenderer;
+  arena!: Arena<MockFireModel>;
+  private terrain!: WorldRenderer;
   private sources!: InputSources;
   private gfx!: Phaser.GameObjects.Graphics;
   private fx!: Phaser.GameObjects.Graphics;
@@ -64,8 +61,18 @@ export class MainScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.arena = new Arena();
-    this.terrain = new TerrainRenderer(this, this.arena);
+    this.arena = createDemoArena();
+    const a = this.arena;
+    // Terreno de la demo: 0 pasto, 1-2 pino, 3 arbusto -> vegetación 0 / 2 / 1 del renderer.
+    const vegetation = Uint8Array.from(a.terrain, (k) => (k === 0 ? 0 : k === 3 ? 1 : 2));
+    this.terrain = new WorldRenderer(this, {
+      width: a.width,
+      height: a.height,
+      vegetation,
+      states: a.fire.states,
+      isFirebreak: (x, y) => a.fire.isFirebreak(x, y),
+      saplingStage: (x, y) => a.saplingStage(x, y),
+    });
     this.gfx = this.add.graphics().setDepth(1);
     this.fx = this.add.graphics().setDepth(1000);
     buildFountain(this);
@@ -240,7 +247,7 @@ export class MainScene extends Phaser.Scene {
   private record(e: ArenaEvent): void {
     if (e.type !== "command") return;
     const c = e.command;
-    if (c.type === "extinguish") return; // demasiado frecuente para el registro
+    if (c.type === "extinguish" || c.type === "transferWater" || c.type === "refill") return; // demasiado frecuentes para el registro
     const name = c.type === "swapItem" ? `toma/suelta: ${c.item ?? "nada"}` : c.type === "digFirebreak" ? `zanja (${c.x},${c.y})` : c.type === "plant" ? `planta (${c.x},${c.y})` : c.type;
     this.log.push(`J${e.playerId}: ${name}`);
   }

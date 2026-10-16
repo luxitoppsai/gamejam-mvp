@@ -17,7 +17,7 @@ export const CELL_HEAT = 100;
 /**
  * Fuego "de mentira" para la PoC 2 (no es el de la PoC 1): regla fija y determinista.
  * Una celda ardiendo contagia a sus 4 vecinos tras IGNITE_AFTER s y se consume tras BURN_TIME s.
- * Implementa FireModel y añade `setFirebreak` (el contrato aún no define cortafuegos: ver Q8).
+ * Implementa FireModel completo (incluido el cortafuego).
  */
 export class MockFireModel implements FireModel {
   readonly states: Uint8Array;

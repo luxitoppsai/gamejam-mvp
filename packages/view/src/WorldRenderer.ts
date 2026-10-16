@@ -1,7 +1,5 @@
 import Phaser from "phaser";
 import { TILE_SIZE } from "@vov/core";
-import type { CellularFire } from "../sim";
-import { BURNING, UNBURNED } from "../sim";
 import { ALIVE_VARIANTS, BURNED_VARIANTS, buildTileset, FLAME_FRAMES, TILE, TILESET_KEY } from "./tileset";
 
 /** Milisegundos por cuadro de la animación de llama. */
@@ -14,12 +12,25 @@ const hash = (a: number): number => {
   return (h ^ (h >>> 16)) >>> 0;
 };
 
+/** Lo mínimo que el renderer necesita saber del mundo (lo cumplen CellularFire y MockFireModel con un adaptador). */
+export interface WorldView {
+  readonly width: number;
+  readonly height: number;
+  /** 0 pastizal, 1 matorral, 2 bosque. */
+  readonly vegetation: Uint8Array;
+  /** 0 sin quemar, 1 ardiendo, 2 quemado. */
+  readonly states: Uint8Array;
+  isFirebreak(x: number, y: number): boolean;
+  /** Etapa del brote (0..2) o -1 si no hay. */
+  saplingStage(x: number, y: number): number;
+}
+
 /**
- * Dibuja el fuego como un tilemap de 16x16 (pixel art): cada celda es un tile que cambia
- * entre vivo (pasto, arbusto, pino), ardiendo (llama animada) y quemado (ceniza, troncos).
+ * Dibuja el mundo como un tilemap de 16x16 (pixel art): cada celda es un tile que cambia entre
+ * vivo (pasto, arbusto, pino), ardiendo (llama animada), quemado (ceniza, troncos), zanja y brote.
  * Solo se toca un tile cuando su índice cambia. Añade humo y chispas con partículas.
  */
-export class FireRenderer {
+export class WorldRenderer {
   private readonly tiles: Phaser.Tilemaps.Tile[];
   private readonly current: Uint8Array;
   private readonly aliveIdx: Uint8Array;
@@ -29,12 +40,12 @@ export class FireRenderer {
   private readonly smoke: Phaser.GameObjects.Particles.ParticleEmitter;
   private readonly sparks: Phaser.GameObjects.Particles.ParticleEmitter;
 
-  constructor(private readonly scene: Phaser.Scene, private readonly fire: CellularFire) {
-    const { width, height, vegetation } = fire;
+  constructor(scene: Phaser.Scene, private readonly world: WorldView) {
+    const { width, height, vegetation } = world;
     buildTileset(scene);
     const map = scene.make.tilemap({ tileWidth: TILE_SIZE, tileHeight: TILE_SIZE, width, height });
     const tileset = map.addTilesetImage(TILESET_KEY, TILESET_KEY, TILE_SIZE, TILE_SIZE, 0, 0)!;
-    const layer = map.createBlankLayer("fire", tileset, 0, 0, width, height)!;
+    const layer = map.createBlankLayer("world", tileset, 0, 0, width, height)!;
 
     const n = width * height;
     this.tiles = new Array(n);
@@ -86,18 +97,24 @@ export class FireRenderer {
 
   /** Actualiza los tiles que cambiaron y emite partículas. Devuelve cuántas celdas arden. */
   update(timeMs: number): number {
-    const { fire, tiles, current, aliveIdx, burnedIdx, seeds, burningIdx } = this;
-    const { states, vegetation, width } = fire;
+    const { world, tiles, current, aliveIdx, burnedIdx, seeds, burningIdx } = this;
+    const { states, vegetation, width } = world;
     const frame = Math.floor(timeMs / FLAME_MS);
     let nBurning = 0;
     for (let i = 0; i < states.length; i++) {
       const s = states[i]!;
+      const x = i % width;
+      const y = (i - x) / width;
       let idx: number;
-      if (s === UNBURNED) idx = aliveIdx[i]!;
-      else if (s === BURNING) {
+      if (world.isFirebreak(x, y)) idx = TILE.firebreak;
+      else if (s === 0) idx = aliveIdx[i]!;
+      else if (s === 1) {
         burningIdx[nBurning++] = i;
         idx = TILE.burningBase + vegetation[i]! * FLAME_FRAMES + ((seeds[i]! + frame) % FLAME_FRAMES);
-      } else idx = burnedIdx[i]!;
+      } else {
+        const stage = world.saplingStage(x, y);
+        idx = stage >= 0 ? TILE.sapling[stage]! : burnedIdx[i]!;
+      }
       if (idx !== current[i]) {
         current[i] = idx;
         tiles[i]!.index = idx;

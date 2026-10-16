@@ -18,6 +18,9 @@ export const PARAMS = {
   digSeconds: 1.5,
   /** Segundos por siembra. */
   plantSeconds: 0.6,
+  /** Segundos por etapa de crecimiento de un brote (balance.md: 3 etapas x 20 s). */
+  growthSeconds: 20,
+  growthStages: 3,
   /** Frecuencia máxima (Hz) de comandos repetitivos (extinguish). */
   commandHz: 10,
 } as const;

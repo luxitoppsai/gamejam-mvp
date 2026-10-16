@@ -2,14 +2,14 @@ import { describe, expect, it } from "vitest";
 import { TILE_SIZE } from "@vov/core";
 import { Arena, IDLE_INPUT } from "./Arena";
 import type { PlayerInput } from "./Arena";
-import { MockFireModel } from "../mock/MockFireModel";
+import { MockFireModel } from "./MockFireModel";
 
 const px = (t: number) => (t + 0.5) * TILE_SIZE;
 const inputs = (m: Record<number, Partial<PlayerInput>>) =>
   new Map(Object.entries(m).map(([id, v]) => [Number(id), { ...IDLE_INPUT, ...v }]));
 
 /** Arena vacía de 30x9 sin árboles para pruebas controladas. */
-const empty = () => new Arena({ width: 30, height: 9, populate: false });
+const empty = () => new Arena({ width: 30, height: 9 });
 
 function take(a: Arena, id: number, kind: Parameters<Arena["spawnItem"]>[0]) {
   const p = a.player(id);

@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@vov/core": "*",
+    "@vov/gameplay": "*",
+    "@vov/view": "*",
     "phaser": "^3.90.0"
   }
 }

@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { BASE_HEIGHT, BASE_WIDTH } from "@vov/core";
 import { MainScene } from "./scenes/MainScene";
-import { SCHEMES } from "./input/InputSources";
+import { SCHEMES } from "@vov/view";
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,

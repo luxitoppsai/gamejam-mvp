@@ -20,4 +20,7 @@ export interface FireModel {
   ignite(x: number, y: number): void;
   extinguish(x: number, y: number, amount: number): void;
   setWind(direction: number, strength: number): void;
+  /** Marca/desmarca una celda como cortafuego: no arde ni contagia (Q8). */
+  setFirebreak(x: number, y: number, on: boolean): void;
+  isFirebreak(x: number, y: number): boolean;
 }

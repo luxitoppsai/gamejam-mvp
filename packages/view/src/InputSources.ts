@@ -1,6 +1,6 @@
 import Phaser from "phaser";
-import { IDLE_INPUT } from "../arena/Arena";
-import type { PlayerInput } from "../arena/Arena";
+import { IDLE_INPUT } from "@vov/gameplay";
+import type { PlayerInput } from "@vov/gameplay";
 
 export const MAX_PLAYERS = 4;
 

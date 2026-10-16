@@ -137,3 +137,17 @@ describe("WindController", () => {
     for (const delta of a) expect(Math.abs(delta)).toBeLessThanOrEqual(Math.PI / 4 + 1e-9);
   });
 });
+describe("cortafuego (Q8)", () => {
+  it("una línea de cortafuego completa detiene el avance", () => {
+    const f = new CellularFire({ width: 24, height: 9, seed: 3, vegetation: uniformVegetation(24, 9, GRASS) });
+    for (let y = 0; y < 9; y++) f.setFirebreak(12, y, true);
+    f.ignite(4, 4);
+    f.ignite(12, 4); // sobre el cortafuego no prende
+    expect(f.getCell(12, 4).state).toBe("unburned");
+    for (let i = 0; i < 4000; i++) f.step(STEP_SECONDS);
+    let maxX = 0;
+    for (let i = 0; i < f.states.length; i++) if (f.states[i] !== UNBURNED) maxX = Math.max(maxX, i % 24);
+    expect(maxX).toBeLessThan(12);
+    expect(f.isFirebreak(12, 0)).toBe(true);
+  });
+});
