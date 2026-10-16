@@ -53,3 +53,14 @@ Fuente única de los números del juego. Todos son **puntos de partida** a ajust
 |-----------|-------|
 | Etapas de crecimiento | 3 (semilla -> brote -> árbol) |
 | Tiempo por etapa (una especie, con riego) | 20 s; sin riego se detiene |
+## PoC 2: arena, ítems y fuego mock
+| Parámetro | Valor |
+|-----------|-------|
+| Arena | 40 x 28 tiles (cabe entera a zoom 0.5 en 320x224) |
+| Velocidad del jugador | 60 px/s (3.75 tiles/s) |
+| Manguera: capacidad / gasto / potencia / alcance | 100 / 15 por s / 90 de calor por s / 4 tiles |
+| Extintor: capacidad / gasto / potencia / alcance | 60 / 25 por s / 150 de calor por s / 2 tiles (3 de ancho) |
+| Mochila del Soporte: capacidad | 300 |
+| Distancias: tomar ítem / Soporte a Sofocador / fuente | 16 px / 24 px / 22 px |
+| Siembra | 0.6 s por celda (solo sobre ceniza) |
+| Fuego mock: calor por celda / contagia tras / se consume a los | 100 / 2 s / 10 s (vecinos ortogonales, frente ~0.5 celdas/s) |

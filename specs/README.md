@@ -22,7 +22,7 @@ Desarrollo guiado por especificaciones: **spec -> plan -> tasks -> código**. La
 | PoC | Spec | Plan | Tareas | Responsable |
 |-----|------|------|--------|-------------|
 | 1 Fuego | Borrador | Borrador | 9/10 (falta GIF/video, T1.11) | Luis (con Claude) |
-| 2 Roles | Borrador | Borrador | 0% | Luis (con Claude) |
+| 2 Roles | Borrador | Borrador | 8/10 (faltan prueba con 3 personas T2.9 y GIF/video T2.11) | Luis (con Claude) |
 | 3 Red | Borrador | Borrador | 0% | libre |
 | 4 Terreno | Borrador | Borrador | 0% | libre |
 

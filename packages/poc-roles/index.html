@@ -3,14 +3,49 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Verde Otra Vez - PoC 2</title>
+    <link rel="icon" href="data:," />
+    <title>Verde Otra Vez - PoC 2: Roles y herramientas</title>
     <style>
-      html, body { margin: 0; height: 100%; background: #111; }
-      #game { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+      html, body { margin: 0; height: 100%; background: #111; color: #ddd; font: 13px/1.4 system-ui, sans-serif; }
+      #app { display: flex; height: 100%; }
+      #game { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; }
+      #panel { width: 270px; padding: 10px; background: #1c1c20; overflow-y: auto; box-sizing: border-box; }
+      #panel h1 { font-size: 14px; margin: 0 0 8px; color: #9be564; }
+      #panel h2 { font-size: 11px; margin: 12px 0 4px; text-transform: uppercase; letter-spacing: .06em; color: #888; }
+      .row { display: flex; flex-wrap: wrap; gap: 4px; }
+      button { background: #2e2e36; color: #eee; border: 1px solid #44444f; border-radius: 4px; padding: 4px 8px; cursor: pointer; font: inherit; }
+      button:hover { background: #3a3a45; }
+      .card { background: #26262c; border-left: 4px solid #888; padding: 4px 8px; margin-bottom: 4px; border-radius: 3px; }
+      .muted { color: #999; font-size: 12px; }
+      .bar { height: 5px; background: #111; border-radius: 3px; margin-top: 3px; overflow: hidden; }
+      .bar i { display: block; height: 100%; }
+      #fire, #log { white-space: pre-wrap; font: 11px/1.5 ui-monospace, Consolas, monospace; background: #111; padding: 6px; border-radius: 4px; }
+      ul { margin: 4px 0; padding-left: 16px; color: #aaa; font-size: 12px; }
+      @media (max-width: 700px) { #app { flex-direction: column; } #panel { width: auto; max-height: 45%; } }
     </style>
   </head>
   <body>
-    <div id="game"></div>
+    <div id="app">
+      <div id="game"></div>
+      <aside id="panel">
+        <h1>PoC 2 - Roles y herramientas</h1>
+        <div id="fire"></div>
+        <h2>Jugadores</h2>
+        <div id="players"></div>
+        <div class="row">
+          <button id="btn-add">+ Jugador (teclado)</button>
+          <button id="btn-restart">Reiniciar</button>
+          <button id="btn-view">Vista: seguir equipo</button>
+        </div>
+        <h2>Controles</h2>
+        <ul id="controls"></ul>
+        <p class="muted">
+          Tu rol es el ítem que llevas: Manguera/Extintor = Sofocador, Mochila = Soporte (recarga en la fuente azul y pasa agua al Sofocador cercano), Pala = Cortafuegos (mantén usar frente a una celda), Semillas = Botánico (solo sobre ceniza). Cambia de rol tomando otro ítem. V alterna la vista.
+        </p>
+        <h2>Registro</h2>
+        <div id="log"></div>
+      </aside>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

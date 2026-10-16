@@ -6,6 +6,9 @@ Anota aquí cualquier ambigüedad antes de decidir por tu cuenta. Al resolver, m
 
 | # | Pregunta | Afecta | Dueño |
 |---|----------|--------|-------|
+| Q8 | `FireModel` no tiene noción de **cortafuego** (celda que no arde). La PoC 2 lo resuelve en su mock con `setFirebreak(x, y, on)`; para integrar con el fuego real (PoC 1) hay que añadirlo al contrato o modelarlo en `TerrainGrid`. | PoC 1, 2, 4 (M09) | equipo |
+| Q9 | `PlayerCommand` no tiene acción para **recargar o transferir agua** (mochila en fuente, Soporte -> Sofocador). La PoC 2 lo emite como evento local (`transfer`/`refill`); la red (PoC 3) necesitará un comando. | PoC 2, 3 (M03) | equipo |
+| Q10 | Las llamas, ceniza y tileset de pixel art están duplicados entre PoC 1 y PoC 2 (`render/tileset.ts`). `core` no puede tener Phaser; ¿crear `packages/art` compartido? | PoC 1, 2, 4 | equipo |
 | Q4 | Validación de datos ecológicos con especialistas forestales (necesaria solo antes de publicar) | contenido | por definir; ver nota en Resueltas |
 
 ## Supuestos (revisar)
