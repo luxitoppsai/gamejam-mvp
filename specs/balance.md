@@ -14,11 +14,14 @@ Fuente única de los números del juego. Todos son **puntos de partida** a ajust
 ## Fuego
 | Parámetro | Valor |
 |-----------|-------|
-| Prob. de contagio por paso a vecino: pastizal / matorral / bosque | 0.60 / 0.35 / 0.15 |
-| Duración de una celda ardiendo (pasos): pastizal / matorral / bosque | 15 / 30 / 60 |
+| Prob. de contagio por paso a vecino (8 vecinos): pastizal / matorral / bosque | 0.05 / 0.026 / 0.011 |
+| Duración de una celda ardiendo (pasos): pastizal / matorral / bosque | 40 / 80 / 200 |
+| Velocidad del frente resultante, sin viento (celdas/s) | ~2.1 / ~1.2 / ~0.55 (medida en PoC 1; con viento fuerte a favor ~3.3 / ~1.9 / ~0.9) |
 | Multiplicador de viento sobre el contagio | 0.5 (en contra) a 2.0 (a favor) |
 | Cambio de viento | cada 20-40 s, giro máx. 45 grados |
 | Pendiente (M08, opcional) | x1.5 cuesta arriba |
+
+> Reajuste 2026-10-16: los primeros valores (contagio 0.60/0.35/0.15, duración 15/30/60) daban 5-10 celdas/s y el mapa de 128 se quemaba en ~20 s. Los actuales dan un frente de 0.5-2 celdas/s.
 
 ## Resultado del nivel
 | Parámetro | Valor |

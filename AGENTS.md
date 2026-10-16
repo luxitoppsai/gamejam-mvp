@@ -25,7 +25,7 @@ Fuente de verdad: `specs/`. Origen del diseño: `Verde Otra Vez Documento técni
 - Tile 16x16, resolución base 320x224, `pixelArt: true`.
 - Cambiar una interfaz de `core` requiere actualizar `specs/contracts.md` y avisar a todas las PoC.
 - Alcance: solo mecánicas del catálogo (`specs/mechanics-catalog.md`). Nada MVP+ sin spec.
-- Arte y audio originales o de licencia libre verificada; no usar material de ZAMN.
+- Arte y audio originales o de licencia libre verificada; no usar material de ZAMN. El arte provisional vive en `assets/reference/` (Kenney, CC0; ver su README): sirve de referencia y de placeholder, no es el arte final.
 - Datos ecológicos son ejemplos hasta validación con especialistas; no presentarlos como hechos.
 - Archivos < 500 líneas. No commitear secretos ni `.env`.
 

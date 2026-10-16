@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BURNED, BURNING, FOREST, GRASS, STEP_SECONDS, UNBURNED } from "./params";
+import { BURN_STEPS, BURNED, BURNING, FOREST, GRASS, STEP_SECONDS, UNBURNED } from "./params";
 import { CellularFire } from "./CellularFire";
 import { WindController } from "./WindController";
 import { uniformVegetation } from "./vegetation";
@@ -66,7 +66,7 @@ describe("CellularFire", () => {
   it("una celda aislada arde su duración y queda en ceniza", () => {
     const f = new CellularFire({ width: 1, height: 1, vegetation: uniformVegetation(1, 1, GRASS) });
     f.ignite(0, 0);
-    run(f, 14);
+    run(f, BURN_STEPS[GRASS]! - 1);
     expect(f.states[0]).toBe(BURNING);
     run(f, 1);
     expect(f.states[0]).toBe(BURNED);

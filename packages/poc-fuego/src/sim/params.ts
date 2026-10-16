@@ -17,9 +17,9 @@ export const SHRUB = 1;
 export const FOREST = 2;
 
 /** Probabilidad de contagio por paso a un vecino, por vegetación del vecino. */
-export const SPREAD_PROBABILITY: readonly number[] = [0.6, 0.35, 0.15];
+export const SPREAD_PROBABILITY: readonly number[] = [0.05, 0.026, 0.011];
 /** Pasos que arde una celda, por su vegetación. */
-export const BURN_STEPS: readonly number[] = [15, 30, 60];
+export const BURN_STEPS: readonly number[] = [40, 80, 200];
 /** Peso del contagio en diagonal respecto al ortogonal. */
 export const DIAGONAL_WEIGHT = 0.7;
 

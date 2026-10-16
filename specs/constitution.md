@@ -21,7 +21,7 @@ Phaser 3, TypeScript (strict), Vite, Vitest. Servidor de PoC 3: Node.js + Colyse
 - Repositorio: **monorepo único**. Valores numéricos en `specs/balance.md`.
 
 ## Contenido
-- Arte, personajes y logotipos originales (solo la estética general de ZAMN). Audio original o licencia libre verificada, OGG.
+- Arte, personajes y logotipos originales (solo la estética general de ZAMN). **Excepción provisional:** en las PoC se permite arte de referencia con licencia libre verificada (Kenney, CC0) guardado en `assets/reference/`; no es arte final. Audio original o licencia libre verificada, OGG.
 - Datos ecológicos: ejemplos hasta validar con especialistas forestales.
 - Voces opcionales en prototipo; se sustituyen por texto con blip.
 
