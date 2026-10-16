@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { BASE_HEIGHT, BASE_WIDTH, DEFAULT_SEED, TILE_SIZE } from "@vov/core";
 import { CellularFire, WindController } from "../sim";
 import { FireRenderer } from "../render/FireRenderer";
+import { SOURCE_KEY } from "../render/tileset";
 
 export interface SceneStats {
   fps: number;
@@ -50,6 +51,10 @@ export class MainScene extends Phaser.Scene {
     if (data.seed !== undefined) this.seed = data.seed;
   }
 
+  preload(): void {
+    this.load.image(SOURCE_KEY, "assets/kenney/tilemap_packed.png");
+  }
+
   create(): void {
     this.fire = new CellularFire({ width: this.size, height: this.size, seed: this.seed });
     this.wind = new WindController(this.fire, this.seed, 0, 0.6);
@@ -59,8 +64,8 @@ export class MainScene extends Phaser.Scene {
     const cam = this.cameras.main;
     const fit = Math.min(BASE_WIDTH / mapPx, BASE_HEIGHT / mapPx);
     this.zoomLevels = [fit, 0.25, 0.5, 1].filter((z, i, a) => z >= fit - 1e-9 && a.indexOf(z) === i).sort((a, b) => a - b);
-    this.zoomIdx = 0;
-    cam.setZoom(this.zoomLevels[0]!);
+    this.zoomIdx = this.zoomLevels.indexOf(0.5);
+    cam.setZoom(0.5);
     cam.centerOn(mapPx / 2, mapPx / 2);
 
     this.input.mouse?.disableContextMenu();
@@ -85,7 +90,7 @@ export class MainScene extends Phaser.Scene {
     kb.on("keydown-Z", () => this.zoomStep(1));
   }
 
-  update(_time: number, delta: number): void {
+  update(time: number, delta: number): void {
     const dt = delta / 1000;
     const cam = this.cameras.main;
     const { cursors, wasd } = this.keys;
@@ -105,7 +110,7 @@ export class MainScene extends Phaser.Scene {
       if (this.fire.tick !== tick) this.stepMs = this.stepMs * 0.8 + (performance.now() - t0) * 0.2;
     }
     const t1 = performance.now();
-    this.fireView.update();
+    this.fireView.update(time);
     this.renderMs = this.renderMs * 0.9 + (performance.now() - t1) * 0.1;
   }
 

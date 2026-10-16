@@ -14,12 +14,14 @@ npm run dev:fuego      # http://localhost:5171
 npm test -w @vov/poc-fuego
 ```
 
+La cámara arranca a zoom 0.5 (40 x 28 tiles visibles); el botón Zoom y la rueda recorren 0.25, 0.5, 1 y vista completa.
+
 Controles: clic = encender celda, clic derecho = apagar (radio 3), WASD/flechas = cámara, rueda o Z = zoom, Espacio = pausa. Panel lateral: reiniciar, nueva semilla, 64x64/128x128, velocidad, viento (rotar, fuerza, auto-viento), encender centro/8 focos. Viento: 0 grados = este, 90 = sur.
 
 ## Qué hay
 
 - `src/sim/` lógica pura (sin Phaser, sin `Math.random()`): `CellularFire` implementa `FireModel` de `@vov/core`; `WindController`; PRNG con semilla; vegetación generada por ruido.
-- `src/render/FireRenderer.ts`: textura de 1 px por celda escalada a un tile de 16 px, con llamas animadas, ceniza con brasas, y partículas de llama y humo.
+- `src/render/`: tilemap de pixel art de 16x16. `tileset.ts` compone el tileset con tiles de Kenney (`assets/reference`, CC0, solo referencia) más llamas y ceniza generadas con contorno oscuro; `FireRenderer.ts` cambia el tile de cada celda entre vivo (pasto, arbusto, pino), ardiendo (llama animada) y quemado (ceniza, troncos), y añade humo y chispas con partículas.
 - `src/scenes/MainScene.ts` y `index.html`: escena, cámara y panel de depuración.
 
 ## Métricas
