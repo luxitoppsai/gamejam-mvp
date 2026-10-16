@@ -12,6 +12,12 @@ Fuente de verdad: `specs/`. Origen del diseño: `Verde Otra Vez Documento técni
 4. Si la spec es ambigua o contradice el código, no adivines: anótalo en `specs/open-questions.md` y pregunta.
 5. Cada requisito (`FR-*`/`NFR-*`) debe poder rastrearse a una tarea y a una prueba o métrica.
 
+## Antes de empezar
+
+- Toma una PoC libre siguiendo `specs/README.md` (sección *Tomar una PoC*) y no toques las de otros.
+- Plazo de 2 días: solo mecánicas MVP; lo marcado *opcional* queda fuera salvo que sobre tiempo.
+- Valores numéricos: `specs/balance.md` (no los hardcodees sin referenciarlo).
+
 ## Reglas duras
 
 - Una PoC solo depende de otras vía interfaces de `@vov/core` (`FireModel`, `TerrainGrid`, `PlayerCommand`, `NetSession`). Lo que no es suyo se mockea.

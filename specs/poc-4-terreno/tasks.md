@@ -1,5 +1,7 @@
 # Tareas - PoC 4
 
+Responsable: libre | Plazo: 2026-10-18
+
 - [ ] T4.1 Cargar mapa Tiled con capas (FR-4.1)
 - [ ] T4.2 `TerrainGrid` con estados y evento de cambio (FR-4.2) - pruebas unitarias
 - [ ] T4.3 Plantar/regar con crecimiento por etapas, una especie (FR-4.3)

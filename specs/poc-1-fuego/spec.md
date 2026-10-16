@@ -33,6 +33,9 @@ M05 Propagación, M06 Viento, M07 Tipos de vegetación; M08 Pendiente si hay tie
 - AC-1.4 Pruebas unitarias de contagio, viento y vegetación pasan.
 - AC-1.5 Demo corre con `npm run dev:fuego`; README y GIF/video entregados; métricas anotadas.
 
+## Referencias
+Valores en `specs/balance.md` (contagio, duración de llama, viento, frecuencia, semilla).
+
 ## Riesgos y salida prevista
 Si no llega a 60 FPS: reducir la cuadrícula, simular a menor frecuencia que el dibujo, o mover el cálculo a un Web Worker.
 

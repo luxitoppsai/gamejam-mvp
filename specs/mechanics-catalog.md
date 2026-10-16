@@ -32,6 +32,8 @@ Prioridad: MVP = mínimo para validar diversión; Fase 2/3 amplían después.
 
 ## Roles por ítem (M02)
 
+El rol no es fijo por persona: lo da el ítem que se sostiene. Cualquier jugador puede tomar cualquier ítem y cambiar soltándolo.
+
 | Rol | Ítems | Función | Necesita de |
 |-----|-------|---------|-------------|
 | Sofocador | Manguera, extintor, machete | Apaga fuego directo y frena el avance | Agua del Soporte |

@@ -17,7 +17,8 @@ Phaser 3, TypeScript (strict), Vite, Vitest. Servidor de PoC 3: Node.js + Colyse
 - Simulación (fuego, terreno) = lógica pura, determinista, sin Phaser; servidor autoritativo del fuego.
 - Los módulos hablan solo por interfaces de `@vov/core` y usan mocks para lo ajeno.
 - Entregable por PoC: demo con un comando, README, GIF/video corto, tabla de métricas.
-- Tiempo fijo por PoC: 1 a 2 semanas (por acordar) y revisión conjunta al final.
+- Tiempo fijo por PoC: **2 días** (2026-10-16 a 2026-10-18), con revisión conjunta al final. Solo mecánicas MVP; las opcionales solo si sobra tiempo.
+- Repositorio: **monorepo único**. Valores numéricos en `specs/balance.md`.
 
 ## Contenido
 - Arte, personajes y logotipos originales (solo la estética general de ZAMN). Audio original o licencia libre verificada, OGG.

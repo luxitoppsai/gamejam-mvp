@@ -34,6 +34,9 @@ M14 Estados del terreno, M15 Reforestación, M16 Flujo de fases y victoria/derro
 - AC-4.4 Prueba con jugadores: la reforestación entretiene sola (anotar observaciones).
 - AC-4.5 Demo corre con `npm run dev:terreno`; README, GIF/video y métricas.
 
+## Referencias
+Valores en `specs/balance.md` (mapa 128x128, tiempos de fase, meta de regeneración, etapas de crecimiento).
+
 ## Riesgos y salida prevista
 Si la reforestación aburre: añadir decisiones (qué especie, dónde) o acortar la fase.
 

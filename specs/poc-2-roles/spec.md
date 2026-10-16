@@ -14,7 +14,7 @@ M01 Movimiento y cámara, M02 Ítems y roles, M03 Agua y manguera, M09 Cortafueg
 
 ## Requisitos funcionales
 - FR-2.1 Movimiento top-down con cámara que sigue al jugador local (M01) y colisión con tiles.
-- FR-2.2 Tomar un ítem asigna el rol; soltarlo permite cambiar de rol (M02).
+- FR-2.2 No hay roles fijos por persona: el rol lo determina el ítem en mano. Cualquier jugador puede tomar cualquier ítem, tomar uno asigna el rol y soltarlo permite cambiar (M02). Un ítem activo a la vez (hipótesis a validar).
 - FR-2.3 Roles: Sofocador, Soporte de agua, Cortafuegos, Vigía, Botánico (ver `specs/mechanics-catalog.md`).
 - FR-2.4 La manguera gasta agua de un tanque al disparar; sin agua no apaga (M03).
 - FR-2.5 El Soporte recarga al Sofocador y se recarga en fuentes (M03).
@@ -31,8 +31,11 @@ M01 Movimiento y cámara, M02 Ítems y roles, M03 Agua y manguera, M09 Cortafueg
 - AC-2.1 Un Sofocador sin Soporte se queda sin agua en pocos segundos; con Soporte puede seguir.
 - AC-2.2 Una zanja bloquea el contagio del fuego mock.
 - AC-2.3 3 personas ajenas al equipo entienden los roles sin explicación larga (anotar dónde se confunden).
-- AC-2.4 Responde la pregunta abierta Q1: qué hace útil al Botánico durante el combate.
+- AC-2.4 Se valida la resolución de Q1: quien tiene semillas (Botánico) cambia a un ítem de combate y no queda inactivo; anotar si un ítem activo basta o hace falta un segundo espacio.
 - AC-2.5 Demo corre con `npm run dev:roles`; README, GIF/video y métricas.
+
+## Referencias
+Valores en `specs/balance.md` (tanque, consumo, recarga, zanja).
 
 ## Riesgos y salida prevista
 Si los roles confunden: reducir el MVP a 3 roles y reintroducir el resto por fases.

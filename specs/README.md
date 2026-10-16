@@ -9,7 +9,8 @@ Desarrollo guiado por especificaciones: **spec -> plan -> tasks -> código**. La
 | [constitution.md](constitution.md) | Principios, stack y reglas no negociables |
 | [mechanics-catalog.md](mechanics-catalog.md) | Las 25 mecánicas (M01-M25), dependencias y prioridad |
 | [contracts.md](contracts.md) | Interfaces entre módulos |
-| [open-questions.md](open-questions.md) | Decisiones pendientes y supuestos |
+| [balance.md](balance.md) | Valores numéricos iniciales (fuente única) |
+| [open-questions.md](open-questions.md) | Decisiones tomadas, pendientes y supuestos |
 | [poc-1-fuego/](poc-1-fuego/) | Simulación del fuego |
 | [poc-2-roles/](poc-2-roles/) | Jugador, roles y herramientas |
 | [poc-3-red/](poc-3-red/) | Multijugador en línea |
@@ -20,12 +21,20 @@ Desarrollo guiado por especificaciones: **spec -> plan -> tasks -> código**. La
 
 | PoC | Spec | Plan | Tareas | Responsable |
 |-----|------|------|--------|-------------|
-| 1 Fuego | Borrador | Borrador | 0% | por asignar |
-| 2 Roles | Borrador | Borrador | 0% | por asignar |
-| 3 Red | Borrador | Borrador | 0% | por asignar |
-| 4 Terreno | Borrador | Borrador | 0% | por asignar |
+| 1 Fuego | Borrador | Borrador | 0% | libre |
+| 2 Roles | Borrador | Borrador | 0% | libre |
+| 3 Red | Borrador | Borrador | 0% | libre |
+| 4 Terreno | Borrador | Borrador | 0% | libre |
 
 Estados: Borrador -> Revisada -> Aprobada. Una spec Aprobada solo cambia con nota en el historial de su archivo.
+
+## Tomar una PoC
+
+No hay reparto fijo: toma la PoC quien esté libre. Plazo: **2 días** (2026-10-16 a 2026-10-18).
+
+1. Pon tu nombre (o el del agente/LLM) en la columna *Responsable* de la tabla de arriba y en la cabecera de su `tasks.md`.
+2. Haz commit de ese cambio **antes** de empezar, para que nadie más la tome.
+3. Si no sigues con ella, vuelve a escribir `libre`.
 
 ## Convenciones
 
