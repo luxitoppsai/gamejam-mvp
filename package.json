@@ -1,0 +1,20 @@
+{
+  "name": "verde-otra-vez",
+  "private": true,
+  "version": "0.0.0",
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "dev:fuego": "npm run dev -w @vov/poc-fuego",
+    "dev:roles": "npm run dev -w @vov/poc-roles",
+    "dev:red": "npm run dev -w @vov/poc-red",
+    "dev:terreno": "npm run dev -w @vov/poc-terreno",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^7.1.0",
+    "vitest": "^3.2.0"
+  }
+}

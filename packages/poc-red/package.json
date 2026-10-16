@@ -1,0 +1,16 @@
+{
+  "name": "@vov/poc-red",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p . && vite build",
+    "typecheck": "tsc -p .",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@vov/core": "*",
+    "phaser": "^3.90.0"
+  }
+}
