@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>Verde Otra Vez</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #111; color: #ddd; font: 13px/1.4 system-ui, sans-serif; }
+      #app { display: flex; height: 100%; }
+      #stage { position: relative; flex: 1; min-width: 0; }
+      #game { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+      #banner { position: absolute; left: 0; right: 0; top: 10px; text-align: center; pointer-events: none; }
+      #banner span { display: inline-block; background: rgba(10,10,14,.78); border: 1px solid #44444f; padding: 6px 14px; border-radius: 6px; font-size: 14px; max-width: 80%; }
+      #banner span:empty { display: none; }
+      #panel { width: 280px; padding: 10px; background: #1c1c20; overflow-y: auto; box-sizing: border-box; }
+      #panel h1 { font-size: 15px; margin: 0 0 8px; color: #9be564; }
+      #panel h2 { font-size: 11px; margin: 12px 0 4px; text-transform: uppercase; letter-spacing: .06em; color: #888; }
+      #phase { font-size: 15px; font-weight: 600; display: flex; justify-content: space-between; }
+      .steps { display: flex; gap: 3px; margin: 6px 0; }
+      .steps i { flex: 1; height: 4px; border-radius: 2px; background: #33333b; }
+      .steps i.on { background: #9be564; }
+      .bar { position: relative; height: 10px; background: #111; border-radius: 3px; overflow: hidden; margin: 3px 0 6px; }
+      .bar i { display: block; height: 100%; }
+      .bar b { position: absolute; top: 0; bottom: 0; width: 2px; background: #fff; opacity: .7; }
+      .lbl { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; }
+      #wind { display: inline-block; transition: transform .3s; }
+      canvas#mini { width: 100%; image-rendering: pixelated; border: 1px solid #44444f; border-radius: 3px; background: #000; }
+      .card { background: #26262c; border-left: 4px solid #888; padding: 4px 8px; margin-bottom: 4px; border-radius: 3px; }
+      .muted { color: #999; font-size: 12px; }
+      .card .bar { height: 5px; margin: 3px 0 0; }
+      button { background: #2e2e36; color: #eee; border: 1px solid #44444f; border-radius: 4px; padding: 5px 10px; cursor: pointer; font: inherit; }
+      button:hover { background: #3a3a45; }
+      button.primary { background: #3d7a2a; border-color: #5fb03e; }
+      button.primary:hover { background: #48902f; }
+      .row { display: flex; flex-wrap: wrap; gap: 4px; }
+      #log { white-space: pre-wrap; font: 11px/1.5 ui-monospace, Consolas, monospace; background: #111; padding: 6px; border-radius: 4px; min-height: 2em; }
+      ul { margin: 4px 0; padding-left: 16px; color: #aaa; font-size: 12px; }
+      #overlay { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(8,10,8,.82); }
+      #overlay.show { display: flex; }
+      #card { background: #1c1c20; border: 1px solid #44444f; border-radius: 10px; padding: 22px 28px; max-width: 460px; text-align: center; }
+      #card h2 { margin: 0 0 6px; font-size: 26px; color: #9be564; text-transform: none; letter-spacing: 0; }
+      #card p { color: #bbb; margin: 6px 0; }
+      #card .row { justify-content: center; margin-top: 12px; }
+      #card table { margin: 10px auto; border-collapse: collapse; }
+      #card td { padding: 2px 12px; text-align: left; }
+      #card td:last-child { text-align: right; color: #fff; }
+      @media (max-width: 760px) { #app { flex-direction: column; } #panel { width: auto; max-height: 45%; } }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div id="stage">
+        <div id="game"></div>
+        <div id="banner"><span id="banner-text"></span></div>
+        <div id="overlay"><div id="card"></div></div>
+      </div>
+      <aside id="panel">
+        <h1>Verde Otra Vez</h1>
+        <div id="phase"><span id="phase-name"></span><span id="phase-time"></span></div>
+        <div class="steps" id="steps"></div>
+        <div class="lbl"><span>Bosque afectado</span><span id="burn-txt"></span></div>
+        <div class="bar"><i id="burn-bar" style="background:#ff7a1f"></i><b style="left:70%"></b></div>
+        <div id="regen-box">
+          <div class="lbl"><span>Regeneración</span><span id="regen-txt"></span></div>
+          <div class="bar"><i id="regen-bar" style="background:#7fe05a"></i></div>
+        </div>
+        <div class="lbl"><span>Viento <span id="wind">&#10132;</span></span><span id="wind-txt"></span></div>
+        <h2>Mapa</h2>
+        <canvas id="mini"></canvas>
+        <h2>Jugadores</h2>
+        <div id="players"></div>
+        <div class="row">
+          <button id="btn-view">Vista: seguir equipo</button>
+          <button id="btn-menu">Menú</button>
+        </div>
+        <h2>Controles</h2>
+        <ul id="controls"></ul>
+        <p class="muted">Tu rol es el ítem que llevas. Enter salta la preparación. V alterna la vista.</p>
+        <h2>Registro</h2>
+        <div id="log"></div>
+      </aside>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

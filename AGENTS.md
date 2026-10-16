@@ -20,8 +20,8 @@ Fuente de verdad: `specs/`. Origen del diseño: `Verde Otra Vez Documento técni
 
 ## Reglas duras
 
-- Una PoC solo depende de otras vía interfaces de `@vov/core` (`FireModel`, `TerrainGrid`, `PlayerCommand`, `NetSession`). Lo que no es suyo se mockea.
-- `packages/core` y toda la simulación: **sin Phaser, sin `Math.random()`, sin `Date.now()`** (determinismo; corre igual en servidor y tests).
+- Una app (PoC o `game`) nunca importa código de otra app. Comparte código solo vía las librerías `@vov/core` (contratos: `FireModel`, `TerrainGrid`, `PlayerCommand`, `NetSession`), `@vov/fire`, `@vov/gameplay` y `@vov/view`. Lo que no es suyo se mockea.
+- `packages/core`, `fire`, `gameplay` y toda la simulación: **sin Phaser, sin `Math.random()`, sin `Date.now()`** (determinismo; corre igual en servidor y tests).
 - Tile 16x16, resolución base 320x224, `pixelArt: true`.
 - Cambiar una interfaz de `core` requiere actualizar `specs/contracts.md` y avisar a todas las PoC.
 - Alcance: solo mecánicas del catálogo (`specs/mechanics-catalog.md`). Nada MVP+ sin spec.
@@ -33,6 +33,7 @@ Fuente de verdad: `specs/`. Origen del diseño: `Verde Otra Vez Documento técni
 
 ```bash
 npm install
+npm run dev                                   # el juego (packages/game)
 npm run dev:fuego | dev:roles | dev:red | dev:terreno
 npm run typecheck
 npm test

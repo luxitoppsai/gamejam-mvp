@@ -48,6 +48,10 @@ export interface ArenaOptions<F extends FireModel = FireModel> {
   terrain?: Uint8Array;
   /** Tile donde aparece el primer jugador (los demás junto a él). */
   spawn?: { x: number; y: number };
+  /** Velocidad del fuego respecto al tiempo real (1 = la de la PoC 1). Ajuste de ritmo de la partida. */
+  fireSpeed?: number | (() => number);
+  /** Multiplicador de la potencia de extinción (ajuste de ritmo cuando el fuego es más lento que el de la PoC 1). */
+  extinguishScale?: number;
 }
 
 /**
@@ -66,6 +70,8 @@ export class Arena<F extends FireModel = FireModel> {
   /** Brotes: índice de celda -> segundos desde que se plantó. */
   readonly saplings = new Map<number, number>();
   private readonly spawn: { x: number; y: number };
+  private readonly fireSpeed: () => number;
+  private readonly extinguishScale: number;
   private listeners: ((e: ArenaEvent) => void)[] = [];
   private prevInteract = new Map<number, boolean>();
   private cmdTimers = new Map<number, number>();
@@ -78,6 +84,9 @@ export class Arena<F extends FireModel = FireModel> {
     this.terrain = opts.terrain ?? new Uint8Array(this.width * this.height);
     if (this.terrain.length !== this.width * this.height) throw new RangeError("terrain no coincide con width*height");
     this.spawn = opts.spawn ?? { x: 4, y: 13 };
+    const fs = opts.fireSpeed ?? 1;
+    this.fireSpeed = typeof fs === "function" ? fs : () => fs;
+    this.extinguishScale = opts.extinguishScale ?? 1;
   }
 
   onEvent(fn: (e: ArenaEvent) => void): void {
@@ -159,7 +168,7 @@ export class Arena<F extends FireModel = FireModel> {
         p.item.y = p.y;
       }
     }
-    this.fire.step(dt);
+    this.fire.step(dt * this.fireSpeed());
     for (const [i, age] of this.saplings) this.saplings.set(i, age + dt);
   }
 
@@ -274,7 +283,7 @@ export class Arena<F extends FireModel = FireModel> {
       for (const o of offsets) {
         const ex = cx + lx * o;
         const ey = cy + ly * o;
-        if (ex >= 0 && ey >= 0 && ex < this.width && ey < this.height) this.fire.extinguish(ex, ey, def.power * eff);
+        if (ex >= 0 && ey >= 0 && ex < this.width && ey < this.height) this.fire.extinguish(ex, ey, def.power * eff * this.extinguishScale);
       }
       aimed = { x: cx, y: cy };
       if (this.solidAt(cx, cy)) break;

@@ -20,6 +20,8 @@ export interface WorldView {
   readonly vegetation: Uint8Array;
   /** 0 sin quemar, 1 ardiendo, 2 quemado. */
   readonly states: Uint8Array;
+  /** 1 donde una celda quemada ya se regeneró (se dibuja como pasto con flores). Opcional. */
+  readonly regrown?: Uint8Array;
   isFirebreak(x: number, y: number): boolean;
   /** Etapa del brote (0..2) o -1 si no hay. */
   saplingStage(x: number, y: number): number;
@@ -113,7 +115,9 @@ export class WorldRenderer {
         idx = TILE.burningBase + vegetation[i]! * FLAME_FRAMES + ((seeds[i]! + frame) % FLAME_FRAMES);
       } else {
         const stage = world.saplingStage(x, y);
-        idx = stage >= 0 ? TILE.sapling[stage]! : burnedIdx[i]!;
+        if (stage >= 0) idx = TILE.sapling[stage]!;
+        else if (world.regrown?.[i]) idx = TILE.grass[seeds[i]! % 4 === 0 ? 2 : seeds[i]! % 2]!;
+        else idx = burnedIdx[i]!;
       }
       if (idx !== current[i]) {
         current[i] = idx;

@@ -6,6 +6,7 @@
     "packages/*"
   ],
   "scripts": {
+    "dev": "npm run dev -w @vov/game",
     "dev:fuego": "npm run dev -w @vov/poc-fuego",
     "dev:roles": "npm run dev -w @vov/poc-roles",
     "dev:red": "npm run dev -w @vov/poc-red",
