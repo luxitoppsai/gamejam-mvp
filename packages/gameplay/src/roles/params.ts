@@ -21,6 +21,15 @@ export const PARAMS = {
   /** Segundos por etapa de crecimiento de un brote (balance.md: 3 etapas x 20 s). */
   growthSeconds: 20,
   growthStages: 3,
+  /** Velocidad del dron en px/s (más rápido que un jugador). */
+  droneSpeed: 90,
+  /** Distancia máxima del dron al Vigía en px (40 tiles). */
+  droneLeash: 640,
+  /** Batería que recupera el dron en tierra por segundo. */
+  droneRecharge: 0.6,
+  /** Segundos que dura una marca de zona de riesgo y máximo de marcas simultáneas. */
+  markerSeconds: 90,
+  maxMarkers: 6,
   /** Frecuencia máxima (Hz) de comandos repetitivos (extinguish). */
   commandHz: 10,
 } as const;

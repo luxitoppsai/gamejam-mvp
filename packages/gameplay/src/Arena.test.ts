@@ -172,3 +172,62 @@ describe("movimiento y comandos", () => {
     expect(cmds).toContain("extinguish");
   });
 });
+describe("Vigía: dron y marcas (M13)", () => {
+  it("con usar el movimiento controla al dron y el Vigía se queda quieto", () => {
+    const a = empty();
+    a.addPlayer(1);
+    a.teleport(1, px(3), px(4));
+    take(a, 1, "drone");
+    const { x, y } = a.player(1);
+    for (let i = 0; i < 20; i++) a.update(0.05, inputs({ 1: { use: true, moveX: 1 } }));
+    const p = a.player(1);
+    expect(p.x).toBe(x);
+    expect(p.y).toBe(y);
+    expect(p.drone.active).toBe(true);
+    expect(p.drone.x).toBeGreaterThan(x + 50);
+  });
+
+  it("al soltar usar el dron vuelve con el Vigía y la batería se recarga", () => {
+    const a = empty();
+    a.addPlayer(1);
+    take(a, 1, "drone");
+    for (let i = 0; i < 40; i++) a.update(0.05, inputs({ 1: { use: true, moveX: 1 } }));
+    const low = a.player(1).item!.water;
+    expect(low).toBeLessThan(25);
+    a.update(0.05, inputs({ 1: {} }));
+    expect(a.player(1).drone.active).toBe(false);
+    expect(a.player(1).drone.x).toBe(a.player(1).x);
+    for (let i = 0; i < 100; i++) a.update(0.05, inputs({ 1: {} }));
+    expect(a.player(1).item!.water).toBeGreaterThan(low);
+  });
+
+  it("sin batería no despega y el dron respeta la correa", () => {
+    const a = new Arena({ width: 90, height: 9 });
+    a.addPlayer(1);
+    a.teleport(1, px(2), px(4));
+    take(a, 1, "drone");
+    for (let i = 0; i < 400; i++) a.update(0.05, inputs({ 1: { use: true, moveX: 1 } }));
+    const p = a.player(1);
+    expect(p.drone.x - p.x).toBeLessThanOrEqual(640 + 1e-6);
+    a.player(1).item!.water = 0;
+    a.update(0.05, inputs({ 1: { use: true, moveX: 1 } }));
+    expect(a.player(1).drone.active).toBe(false);
+  });
+
+  it("interactuar con el dron en el aire deja una marca y no suelta el ítem", () => {
+    const a = empty();
+    const cmds: string[] = [];
+    a.onEvent((e) => e.type === "command" && cmds.push(e.command.type));
+    a.addPlayer(1);
+    a.teleport(1, px(3), px(4));
+    take(a, 1, "drone");
+    for (let i = 0; i < 20; i++) a.update(0.05, inputs({ 1: { use: true, moveX: 1 } }));
+    a.update(0.05, inputs({ 1: { use: true, interact: true } }));
+    expect(a.markers).toHaveLength(1);
+    expect(a.player(1).item?.kind).toBe("drone");
+    expect(cmds).toContain("markZone");
+    a.update(61, inputs({}));
+    a.update(61, inputs({}));
+    expect(a.markers).toHaveLength(0);
+  });
+});

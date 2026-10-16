@@ -26,7 +26,7 @@ Desarrollo guiado por especificaciones: **spec -> plan -> tasks -> código**. La
 | 2 Roles | Borrador | Borrador | 8/10 (faltan prueba con 3 personas T2.9 y GIF/video T2.11) | Luis (con Claude) |
 | 3 Red | Borrador | Borrador | 0% | libre |
 | 4 Terreno | Borrador | Borrador | 0% (la base del juego ya cubre fases, HUD, minimapa y regeneración en versión mínima; faltan Tiled, audio, riego) | libre |
-| Juego base | Borrador | Borrador | 8/12 (ver `game-base/tasks.md`) | Luis (con Claude) |
+| Juego base | Borrador | Borrador | 10/14 (ver `game-base/tasks.md`) | Luis (con Claude) |
 
 Estados: Borrador -> Revisada -> Aprobada. Una spec Aprobada solo cambia con nota en el historial de su archivo.
 

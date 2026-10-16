@@ -8,6 +8,7 @@ export const TILESET_KEY = "vov-tiles";
 export const TOWN_KEY = "town";
 export const DUNGEON_KEY = "dungeon";
 export const FOUNTAIN_KEY = "fountain";
+export const DRONE_KEY = "drone";
 export const FLAME_FRAMES = 4;
 const SRC_COLS = 12;
 
@@ -57,6 +58,29 @@ export function buildFountain(scene: Phaser.Scene): void {
   ctx.fillRect(6, 7, 2, 1);
   ctx.fillRect(9, 9, 1, 1);
   scene.textures.addCanvas(FOUNTAIN_KEY, c);
+}
+
+/** Dron de 16x16 (propio): cuerpo oscuro, cuatro rotores claros y un led rojo. */
+export function buildDrone(scene: Phaser.Scene): void {
+  if (scene.textures.exists(DRONE_KEY)) return;
+  const [c, ctx] = tileCanvas();
+  const px = (x: number, y: number, w: number, h: number, color: string) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, w, h);
+  };
+  px(4, 4, 8, 8, "#2b0f1f"); // contorno de los brazos
+  px(1, 1, 5, 5, "#2b0f1f");
+  px(10, 1, 5, 5, "#2b0f1f");
+  px(1, 10, 5, 5, "#2b0f1f");
+  px(10, 10, 5, 5, "#2b0f1f");
+  px(2, 2, 3, 3, "#cfe8ff"); // rotores
+  px(11, 2, 3, 3, "#cfe8ff");
+  px(2, 11, 3, 3, "#cfe8ff");
+  px(11, 11, 3, 3, "#cfe8ff");
+  px(5, 5, 6, 6, "#5d6270"); // cuerpo
+  px(6, 6, 4, 4, "#8a92a3");
+  px(7, 7, 2, 2, "#ff4a3a"); // led
+  scene.textures.addCanvas(DRONE_KEY, c);
 }
 
 /**

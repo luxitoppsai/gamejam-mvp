@@ -90,3 +90,55 @@ describe("Match: reforestación", () => {
     expect(m.arena.player(1).x).toBe(x);
   });
 });
+
+describe("Match: información del Vigía (M13)", () => {
+  const giveItem = (m: Match, id: number, kind: "radio" | "drone") => {
+    const p = m.arena.player(id);
+    m.arena.spawnItem(kind, p.x, p.y);
+    m.update(0.05, new Map([[id, { moveX: 0, moveY: 0, interact: true, use: false }]]));
+    m.update(0.05, new Map([[id, { moveX: 0, moveY: 0, interact: false, use: false }]]));
+  };
+
+  it("el equipo solo ve el fuego cerca de sus ojos y lo demás queda sin datos", () => {
+    const m = new Match({ size: 64, seed: 5, prepSeconds: 0.1 });
+    m.arena.addPlayer(1);
+    run(m, 1);
+    expect(m.phase).toBe("fire");
+    run(m, 5);
+    const far = m.fire.states.findIndex((s) => s === 1);
+    expect(far).toBeGreaterThanOrEqual(0);
+    expect(m.intel.known[far]).toBe(0); // el foco está lejos de la base y del jugador
+  });
+
+  it("el dron en vuelo revela el foco", () => {
+    const m = new Match({ size: 64, seed: 5, prepSeconds: 0.1 });
+    m.arena.addPlayer(1);
+    giveItem(m, 1, "drone");
+    run(m, 1);
+    const i = m.fire.states.findIndex((st) => st === 1);
+    const s = m.size;
+    const tx = ((i % s) + 0.5) * 16;
+    const ty = (Math.floor(i / s) + 0.5) * 16;
+    const p = m.arena.player(1);
+    for (let k = 0; k < 150 && Math.hypot(p.drone.x - tx, p.drone.y - ty) > 24; k++) {
+      m.update(0.1, new Map([[1, { moveX: tx - p.drone.x, moveY: ty - p.drone.y, interact: false, use: true }]]));
+    }
+    expect(p.drone.active).toBe(true);
+    m.update(0.3, new Map([[1, { moveX: 0, moveY: 0, interact: false, use: true }]]));
+    expect(m.intel.known[i]).toBe(2);
+    expect(m.intel.live[i]).toBe(1);
+  });
+
+  it("la radio informa del foco principal y el viento solo se conoce con el Vigía", () => {
+    const m = new Match({ size: 64, seed: 5, prepSeconds: 0.1 });
+    m.arena.addPlayer(1);
+    run(m, 2);
+    expect(m.windKnown).toBe(false);
+    giveItem(m, 1, "radio");
+    expect(m.windKnown).toBe(true);
+    run(m, 1);
+    expect(m.radio).not.toBeNull();
+    expect(m.radio!.count).toBeGreaterThan(0);
+    expect(m.radio!.distance).toBeGreaterThan(10);
+  });
+});

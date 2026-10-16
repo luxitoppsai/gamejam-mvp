@@ -25,7 +25,7 @@ export function createDemoArena(opts: DemoArenaOptions = {}): Arena<MockFireMode
     ["hose", 9, 12], ["hose", 9, 16], ["extinguisher", 10, 14],
     ["backpack", 8, 13], ["backpack", 8, 15],
     ["shovel", 11, 12], ["shovel", 11, 16],
-    ["seeds", 12, 14], ["radio", 12, 12],
+    ["seeds", 12, 14], ["radio", 12, 12], ["drone", 12, 16],
   ];
   for (const [kind, tx, ty] of items) arena.spawnItem(kind, (tx + 0.5) * TILE_SIZE, (ty + 0.5) * TILE_SIZE);
   arena.fountains.push({ x: 2, y: 9 }, { x: 2, y: 19 });

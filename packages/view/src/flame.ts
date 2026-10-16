@@ -9,7 +9,7 @@ const OUTLINE = [0x2b, 0x0f, 0x1f];
 export function tileCanvas(): [HTMLCanvasElement, CanvasRenderingContext2D] {
   const c = document.createElement("canvas");
   c.width = c.height = T;
-  return [c, c.getContext("2d")!];
+  return [c, c.getContext("2d", { willReadFrequently: true })!];
 }
 
 /** Llama de 16x16 con contorno oscuro (estilo 16 bits). Procedural: 3 lenguas que oscilan por cuadro. */

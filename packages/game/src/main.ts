@@ -104,8 +104,11 @@ setInterval(() => {
   $("regen-box").style.display = h.goal > 0 ? "" : "none";
   $("regen-txt").textContent = `${h.regrown} / ${h.goal} celdas`;
   $("regen-bar").style.width = `${h.goal > 0 ? Math.min(100, (h.regrown / h.goal) * 100) : 0}%`;
-  $("wind").style.transform = `rotate(${h.windDeg}deg)`;
-  $("wind-txt").textContent = `${Math.round(h.windStrength * 100)} %`;
+  $("wind").style.transform = h.windKnown ? `rotate(${h.windDeg}deg)` : "none";
+  $("wind").textContent = h.windKnown ? "➤" : "?";
+  $("wind-txt").textContent = h.windKnown ? `${Math.round(h.windStrength * 100)} %` : "sin datos: necesitan al Vigía";
+  $("radio").style.display = h.radio ? "" : "none";
+  if (h.radio) $("radio").textContent = h.radio;
   $("banner-text").textContent = h.status === "menu" ? "" : h.banner;
   $("players").innerHTML = h.players
     .map(

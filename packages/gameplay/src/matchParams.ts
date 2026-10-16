@@ -16,6 +16,12 @@ export const MATCH = {
   igniteTo: 0.6,
   /** Focos iniciales del incendio. */
   foci: 1,
+  /** Radio de visión (celdas) de cada jugador, del dron y de la base; el equipo solo ve el fuego dentro de ellos. */
+  playerVision: 8,
+  droneVision: 12,
+  baseVision: 11,
+  /** Cada cuántos segundos la radio actualiza su reporte del foco principal. */
+  radioSeconds: 6,
   /** Duración de la preparación en segundos. */
   prepSeconds: 45,
   /** Ventana de reforestación en segundos. */

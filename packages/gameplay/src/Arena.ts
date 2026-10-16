@@ -33,6 +33,8 @@ export interface PlayerState {
   fy: number;
   item: ItemInstance | null;
   spraying: boolean;
+  /** Dron del Vigía: pegado al jugador salvo mientras vuela. */
+  drone: { x: number; y: number; active: boolean };
   /** Acción larga en curso (zanja o siembra) con su progreso en segundos. */
   action: { kind: "dig" | "plant"; cx: number; cy: number; t: number; total: number } | null;
 }
@@ -69,6 +71,8 @@ export class Arena<F extends FireModel = FireModel> {
   readonly groundItems: ItemInstance[] = [];
   /** Brotes: índice de celda -> segundos desde que se plantó. */
   readonly saplings = new Map<number, number>();
+  /** Marcas de zona de riesgo puestas con el dron (age en segundos). */
+  readonly markers: { x: number; y: number; age: number; by: number }[] = [];
   private readonly spawn: { x: number; y: number };
   private readonly fireSpeed: () => number;
   private readonly extinguishScale: number;
@@ -109,8 +113,11 @@ export class Arena<F extends FireModel = FireModel> {
       fy: 0,
       item: null,
       spraying: false,
+      drone: { x: 0, y: 0, active: false },
       action: null,
     };
+    p.drone.x = p.x;
+    p.drone.y = p.y;
     this.players.push(p);
     return p;
   }
@@ -158,16 +165,24 @@ export class Arena<F extends FireModel = FireModel> {
   update(dt: number, inputs: ReadonlyMap<number, PlayerInput>): void {
     for (const p of this.players) {
       const input = inputs.get(p.id) ?? IDLE_INPUT;
-      this.move(p, input, dt);
+      const flying = this.flyingDrone(p, input);
+      if (flying) this.flyDrone(p, input, dt);
+      else this.move(p, input, dt);
+      this.chargeDrone(p, flying, dt);
       const pressed = input.interact && !this.prevInteract.get(p.id);
       this.prevInteract.set(p.id, input.interact);
-      if (pressed) this.interact(p);
-      this.use(p, input.use, dt);
+      if (pressed) {
+        if (flying) this.markZone(p);
+        else this.interact(p);
+      }
+      this.use(p, input.use && !flying, dt);
       if (p.item) {
         p.item.x = p.x;
         p.item.y = p.y;
       }
     }
+    for (const m of this.markers) m.age += dt;
+    while (this.markers.length > 0 && this.markers[0]!.age >= PARAMS.markerSeconds) this.markers.shift();
     this.fire.step(dt * this.fireSpeed());
     for (const [i, age] of this.saplings) this.saplings.set(i, age + dt);
   }
@@ -258,7 +273,8 @@ export class Arena<F extends FireModel = FireModel> {
         });
         break;
       case "radio":
-        break; // Vigía: sin función en la PoC (M13 es opcional).
+      case "drone":
+        break; // El Vigía actúa vía Match (radio: reporte) y flyDrone (dron).
     }
   }
 
@@ -309,6 +325,56 @@ export class Arena<F extends FireModel = FireModel> {
       pack.water = Math.min(cap, pack.water + PARAMS.fountainRate * dt);
       if (this.cmdReady(p.id, dt)) this.emit(p, { type: "refill" });
     }
+  }
+
+  // ---- Vigía: dron (M13) ----
+  /** El dron vuela mientras se mantiene "usar" con él en mano y le queda batería. */
+  private flyingDrone(p: PlayerState, input: PlayerInput): boolean {
+    return p.item?.kind === "drone" && input.use && p.item.water > 0;
+  }
+
+  /** Con el dron en el aire el movimiento controla al dron y el Vigía se queda quieto. */
+  private flyDrone(p: PlayerState, input: PlayerInput, dt: number): void {
+    const d = p.drone;
+    d.active = true;
+    p.action = null;
+    p.spraying = false;
+    const len = Math.hypot(input.moveX, input.moveY);
+    if (len < 0.01) return;
+    let nx = d.x + (input.moveX / len) * PARAMS.droneSpeed * dt;
+    let ny = d.y + (input.moveY / len) * PARAMS.droneSpeed * dt;
+    const dx = nx - p.x;
+    const dy = ny - p.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist > PARAMS.droneLeash) {
+      nx = p.x + (dx / dist) * PARAMS.droneLeash;
+      ny = p.y + (dy / dist) * PARAMS.droneLeash;
+    }
+    d.x = Math.min(this.width * TILE_SIZE - 1, Math.max(0, nx));
+    d.y = Math.min(this.height * TILE_SIZE - 1, Math.max(0, ny));
+  }
+
+  /** Gasta batería en vuelo, la recupera en tierra y devuelve el dron al Vigía al aterrizar. */
+  private chargeDrone(p: PlayerState, flying: boolean, dt: number): void {
+    const it = p.item;
+    if (it?.kind === "drone") {
+      const cap = ITEMS.drone.capacity;
+      if (flying) it.water = Math.max(0, it.water - ITEMS.drone.drain * dt);
+      else it.water = Math.min(cap, it.water + PARAMS.droneRecharge * dt);
+    }
+    if (!flying) {
+      p.drone.active = false;
+      p.drone.x = p.x;
+      p.drone.y = p.y;
+    }
+  }
+
+  private markZone(p: PlayerState): void {
+    const tx = Math.floor(p.drone.x / TILE_SIZE);
+    const ty = Math.floor(p.drone.y / TILE_SIZE);
+    this.markers.push({ x: tx, y: ty, age: 0, by: p.id });
+    while (this.markers.length > PARAMS.maxMarkers) this.markers.shift();
+    this.emit(p, { type: "markZone", x: tx, y: ty });
   }
 
   nearFountain(p: PlayerState): boolean {

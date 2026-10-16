@@ -6,17 +6,18 @@ Estado: Borrador
 ¿Las piezas validadas en las PoC (fuego, roles por ítem, reforestación) se sostienen juntas en una partida completa de punta a punta?
 
 ## Mecánicas (catálogo)
-M01 movimiento, M02 tomar/soltar, M03 agua y Soporte, M05-M07 fuego, M09 zanja, M14 estados del terreno, M15 reforestación, M16 fases y victoria/derrota, M17 HUD y minimapa.
+M01 movimiento, M02 tomar/soltar, M03 agua y Soporte, M05-M07 fuego, M09 zanja, M13 Vigía, M14 estados del terreno, M15 reforestación, M16 fases y victoria/derrota, M17 HUD y minimapa.
 
 ## Alcance
 **Incluye:** una partida local de 1 a 4 jugadores en mapa de 128x128: preparación -> incendio -> reforestación -> cierre, con fuego real y viento, fuentes naturales, regeneración y pantallas de menú y resultado.
-**No incluye / pendiente:** red (PoC 3), mapa Tiled, riego, audio (M18), mecánicas opcionales (M08, M11-M13, M22), cierre educativo con datos (M25, requiere validación; Q4), bots.
+**No incluye / pendiente:** red (PoC 3), mapa Tiled, riego, audio (M18), mecánicas opcionales (M08, M11, M12, M22), cierre educativo con datos (M25, requiere validación; Q4), bots.
 
 ## Requisitos funcionales
 - FR-GB.1 La partida recorre las 4 fases con la máquina de estados de `Match` (preparación, incendio, reforestación, cierre).
 - FR-GB.2 Derrota si el fuego supera el 70% del mapa o vence la reforestación sin alcanzar la meta; victoria al regenerar el 50% de lo quemado.
 - FR-GB.3 El rol lo da el ítem en mano (Q1); cualquier jugador toma cualquier ítem.
 - FR-GB.4 El HUD muestra fase y tiempo, % afectado frente al límite, progreso de regeneración, viento, minimapa y jugadores.
+- FR-GB.6 El equipo solo ve el fuego donde hay ojos (jugadores, base, dron); el Vigía lo completa: la radio informa del foco principal (rumbo, distancia, celdas en llamas) y del viento, y el dron vuela a distancia con su propia cámara y marca zonas de riesgo visibles para todos (M13).
 - FR-GB.5 La partida es determinista con la misma semilla y entradas (`Match` no usa `Math.random()` ni `Date.now()`).
 
 ## Requisitos no funcionales
@@ -26,6 +27,7 @@ M01 movimiento, M02 tomar/soltar, M03 agua y Soporte, M05-M07 fuego, M09 zanja, 
 ## Criterios de aceptación
 - AC-GB.1 Una partida puede ganarse y perderse por las rutas definidas (probado en `Match.test.ts` y en navegador).
 - AC-GB.2 Sin intervención el incendio supera el 70% (derrota) en el orden de 5 min.
+- AC-GB.4 Sin Vigía el viento figura como "sin datos" y el minimapa no muestra fuego fuera de la visión; con radio o dron sí (probado en `Match.test.ts` y `Arena.test.ts`).
 - AC-GB.3 Con 3-4 personas la partida dura 10-15 min y se entiende sin explicación (por validar; Q11).
 
 ## Interfaces (de specs/contracts.md)

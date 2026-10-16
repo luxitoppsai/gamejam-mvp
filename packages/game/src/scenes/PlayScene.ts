@@ -24,8 +24,13 @@ export interface HudState {
   burnedPct: number;
   loseAtPct: number;
   burning: number;
+  /** El viento solo se muestra si alguien lleva la radio o el dron. */
+  windKnown: boolean;
   windDeg: number;
   windStrength: number;
+  /** Texto del reporte de radio, o null si nadie lleva la radio. */
+  radio: string | null;
+  droneFlying: boolean;
   regrown: number;
   goal: number;
   planted: number;
@@ -50,6 +55,18 @@ const CLOSING: Record<Outcome, string> = {
   "lose-burned": "El fuego arrasó el bosque.",
   "lose-time": "Se acabó el tiempo de reforestación.",
 };
+
+const COMPASS = ["este", "sureste", "sur", "suroeste", "oeste", "noroeste", "norte", "noreste"];
+const compass = (deg: number): string => COMPASS[Math.round(deg / 45) % 8]!;
+
+function radioText(m: Match): string | null {
+  if (!m.radioActive) return null;
+  if (m.phase === "prep") return "Jefe de brigada: \"Radio lista. Sin humo a la vista por ahora.\"";
+  const r = m.radio;
+  if (!r) return m.elapsed > 0 && m.phase !== "fire" ? "Jefe de brigada: \"Sin humo a la vista.\"" : "Jefe de brigada: \"Esperando reporte...\"";
+  const f = r.windStrength < 0.4 ? "débil" : r.windStrength < 0.75 ? "moderado" : "fuerte";
+  return `Jefe de brigada: "Humo al ${compass(r.bearingDeg)}, a unas ${r.distance} celdas de la base. ${r.count} celdas en llamas. Viento ${f} hacia el ${compass(r.windDeg)}."`;
+}
 
 export class PlayScene extends Phaser.Scene {
   match!: Match;
@@ -159,6 +176,9 @@ export class PlayScene extends Phaser.Scene {
       burnedPct: m.burnedFraction * 100,
       loseAtPct: 70,
       burning: m.burning,
+      windKnown: m.windKnown,
+      radio: radioText(m),
+      droneFlying: m.arena.players.some((p) => p.drone.active),
       windDeg: (m.wind.current.direction * 180) / Math.PI,
       windStrength: m.wind.current.strength,
       regrown: m.regrownCount,

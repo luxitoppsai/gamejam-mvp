@@ -76,3 +76,12 @@ Fuente única de los números del juego. Todos son **puntos de partida** a ajust
 | Meta | regenerar el 50% de las celdas quemadas al apagarse el incendio; reforestación 300 s |
 
 > Medición 2026-10-16 con 4 bots simples (2 mangueras + 2 mochilas, luego semillas), 8 semillas: contención del incendio en 7/8, victoria en 3/8 (los bots reforestan mal). Sin intervención el 70% se quema en ~5 min. Con los valores de la PoC 1 sin escalar el mapa de 128 se perdía en 55 s. Pendiente validar con personas (Q11).
+
+## Vigía (M13)
+| Parámetro | Valor |
+|-----------|-------|
+| Visión del equipo sobre el fuego (celdas): jugador / base / dron | 8 / 11 / 12 |
+| Dron: velocidad / batería / recarga en tierra / correa al Vigía | 90 px/s (1.5x un jugador) / 25 s de vuelo / 0.6 s por s / 40 tiles |
+| Marcas de zona de riesgo | hasta 6, duran 90 s |
+| Radio: frecuencia del reporte | cada 6 s (centro del fuego redondeado a 4 celdas) |
+| Viento en el HUD | solo si alguien lleva radio o dron |

@@ -6,7 +6,7 @@ Código: `packages/core/src`. Nombres y firmas son propuesta inicial; se fijan e
 |----------|-------------|---------|--------|------|
 | `FireModel` | PoC 1 | `fire.ts` | `step(dt)`, `getCell(x,y)`, `ignite(x,y)`, `extinguish(x,y,cantidad)`, `setWind(dirección,fuerza)`, `setFirebreak(x,y,on)`, `isFirebreak(x,y)` (Q8) | Servidor (PoC 3), dibujo del fuego |
 | `TerrainGrid` | PoC 4 | `terrain.ts` | `get(x,y)`, `set(x,y,estado)`, evento de cambio | Fuego escribe `burned`; reforestación escribe `regenerated` |
-| `PlayerCommand` | PoC 2 | `commands.ts` | `extinguish`, `digFirebreak`, `plant`, `water`, `swapItem`, `transferWater`, `refill` (Q9) | La red los transporta; el servidor los aplica |
+| `PlayerCommand` | PoC 2 | `commands.ts` | `extinguish`, `digFirebreak`, `plant`, `water`, `swapItem`, `transferWater`, `refill` (Q9), `markZone` (Vigía) | La red los transporta; el servidor los aplica |
 | `NetSession` | PoC 3 | `net.ts` | `send(comando)`, `onState(estado)` | Todos los módulos del cliente |
 
 ## Mocks esperados

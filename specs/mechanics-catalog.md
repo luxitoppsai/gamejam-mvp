@@ -16,7 +16,7 @@ Prioridad: MVP = mínimo para validar diversión; Fase 2/3 amplían después.
 | M10 | Focos secundarios y causas | Chispas y NPC imprudentes crean focos y enseñan la causa | M05 | Fase 2 | 1 |
 | M11 | Rescate de compañeros | Un jugador caído es levantado por otro | M01 | Fase 2 | 2 |
 | M12 | Rescate de comuneros y fauna | Objetivos secundarios con puntaje | M01, M05 | Fase 2 | 2 |
-| M13 | Rol Vigía | Ve mapa de calor y marca zonas de riesgo | M02, M05 | Fase 2 | 2 |
+| M13 | Rol Vigía | Ve mapa de calor y marca zonas de riesgo | M02, M05 | Fase 2 | 2 (implementado en el juego base: radio, dron y marcas) |
 | M14 | Estados del terreno | Celda: bosque vivo, quemada o regenerada | - | MVP | 4 |
 | M15 | Reforestación | Cavar, plantar, regar, esperar crecimiento; especies con distinto ritmo | M14, M02 | MVP (una especie) | 4 |
 | M16 | Flujo de fases y victoria/derrota | Controla preparación, combate, reforestación y cierre | M14 | MVP | 4 |

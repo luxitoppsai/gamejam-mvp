@@ -1,6 +1,8 @@
 import { DEFAULT_SEED, TILE_SIZE } from "@vov/core";
 import { CellularFire, GRASS, FOREST, WindController, generateVegetation, mulberry32 } from "@vov/fire";
 import { Arena } from "./Arena";
+import { Intel } from "./Intel";
+import type { VisionSource } from "./Intel";
 import type { PlayerInput } from "./Arena";
 import { MATCH } from "./matchParams";
 import type { ItemKind } from "./roles/items";
@@ -28,6 +30,22 @@ export interface MatchOptions {
   extinguishScale?: number;
 }
 
+/** Lo que la radio informa del foco principal (el Vigía "valida dónde está el incendio"). */
+export interface RadioReport {
+  /** Celdas ardiendo en todo el mapa. */
+  count: number;
+  /** Centro del fuego, redondeado a múltiplos de 4 celdas. */
+  x: number;
+  y: number;
+  /** Distancia desde la base en celdas y rumbo en grados (0 = este, 90 = sur). */
+  distance: number;
+  bearingDeg: number;
+  windDeg: number;
+  windStrength: number;
+  /** Segundos de partida en que se emitió. */
+  at: number;
+}
+
 export interface MatchSummary {
   outcome: Outcome | null;
   burnedCells: number;
@@ -49,6 +67,10 @@ export class Match {
   readonly fire: CellularFire;
   readonly wind: WindController;
   readonly arena: Arena<CellularFire>;
+  /** Lo que el equipo sabe del fuego (visión de jugadores, base y dron). */
+  readonly intel: Intel;
+  /** Último reporte de radio (solo se actualiza mientras alguien lleve la radio). */
+  radio: RadioReport | null = null;
   /** 1 donde una celda quemada ya se regeneró (un árbol adulto regenera su celda y las 4 vecinas). */
   readonly regrown: Uint8Array;
   phase: Phase = "prep";
@@ -64,6 +86,8 @@ export class Match {
   private readonly opts: Required<Pick<MatchOptions, "loseFraction" | "prepSeconds" | "reforestSeconds" | "foci" | "fireSpeedStart" | "fireSpeedEnd" | "fireRampSeconds">>;
   private readonly matured = new Set<number>();
   private statsTimer = 0;
+  private intelTimer = 0;
+  private radioTimer = 1e9;
   private lastBurnedFraction = 0;
   private lastBurning = 0;
   private ignited = false;
@@ -101,7 +125,9 @@ export class Match {
       spawn: { x: base.x0 + 3, y: Math.floor((base.y0 + base.y1) / 2) - 1 },
     });
     this.regrown = new Uint8Array(n);
+    this.intel = new Intel(this.size, this.size);
     this.populateBase();
+    this.intel.update(0, this.visionSources(), this.fire.states);
   }
 
   /** Zona de la brigada (sin árboles), a la izquierda y centrada verticalmente. */
@@ -150,6 +176,7 @@ export class Match {
     this.arena.update(dt, this.phase === "closing" ? new Map<number, PlayerInput>() : inputs);
     if (this.phase === "fire") this.wind.update(dt);
     this.growSaplings();
+    this.updateIntel(dt);
 
     this.statsTimer += dt;
     if (this.statsTimer >= 0.25) {
@@ -174,6 +201,78 @@ export class Match {
       case "closing":
         break;
     }
+  }
+
+  /** El viento solo se conoce si alguien lleva la radio o el dron (el Vigía). */
+  get windKnown(): boolean {
+    return this.holds("radio") || this.holds("drone");
+  }
+
+  get radioActive(): boolean {
+    return this.holds("radio");
+  }
+
+  private holds(kind: "radio" | "drone"): boolean {
+    return this.arena.players.some((p) => p.item?.kind === kind);
+  }
+
+  private visionSources(): VisionSource[] {
+    const b = this.baseZone();
+    const out: VisionSource[] = [{ x: (b.x0 + b.x1) / 2, y: (b.y0 + b.y1) / 2, r: MATCH.baseVision }];
+    for (const p of this.arena.players) {
+      out.push({ x: p.x / TILE_SIZE, y: p.y / TILE_SIZE, r: MATCH.playerVision });
+      if (p.drone.active) out.push({ x: p.drone.x / TILE_SIZE, y: p.drone.y / TILE_SIZE, r: MATCH.droneVision });
+    }
+    return out;
+  }
+
+  private updateIntel(dt: number): void {
+    this.intelTimer += dt;
+    if (this.intelTimer >= 0.2) {
+      this.intelTimer = 0;
+      this.intel.update(this.elapsed, this.visionSources(), this.fire.states);
+    }
+    if (!this.holds("radio")) {
+      this.radioTimer = 1e9; // al tomar la radio emite un reporte enseguida
+      return;
+    }
+    this.radioTimer += dt;
+    if (this.radioTimer >= MATCH.radioSeconds) {
+      this.radioTimer = 0;
+      this.radio = this.makeReport();
+    }
+  }
+
+  /** Centro del fuego visto desde la base; null si no hay nada ardiendo. */
+  private makeReport(): RadioReport | null {
+    const s = this.size;
+    const states = this.fire.states;
+    let sx = 0;
+    let sy = 0;
+    let count = 0;
+    for (let i = 0; i < states.length; i++) {
+      if (states[i] !== 1) continue;
+      sx += i % s;
+      sy += Math.floor(i / s);
+      count++;
+    }
+    if (count === 0) return null;
+    const x = Math.round(sx / count / 4) * 4;
+    const y = Math.round(sy / count / 4) * 4;
+    const b = this.baseZone();
+    const dx = x - (b.x0 + b.x1) / 2;
+    const dy = y - (b.y0 + b.y1) / 2;
+    const w = this.wind.current;
+    return {
+      count,
+      x,
+      y,
+      distance: Math.round(Math.hypot(dx, dy)),
+      bearingDeg: ((Math.atan2(dy, dx) * 180) / Math.PI + 360) % 360,
+      windDeg: ((w.direction * 180) / Math.PI + 360) % 360,
+      windStrength: w.strength,
+      at: this.elapsed,
+    };
   }
 
   get burnedFraction(): number {
@@ -268,7 +367,7 @@ export class Match {
       ["backpack", b.x0 + 6, cy - 1], ["backpack", b.x0 + 6, cy + 1],
       ["shovel", b.x0 + 9, cy - 3], ["shovel", b.x0 + 9, cy + 3],
       ["seeds", b.x0 + 10, cy - 1], ["seeds", b.x0 + 10, cy + 1], ["seeds", b.x0 + 10, cy + 4],
-      ["radio", b.x0 + 9, cy],
+      ["radio", b.x0 + 9, cy], ["drone", b.x0 + 11, cy],
     ];
     for (const [kind, tx, ty] of items) this.arena.spawnItem(kind, (tx + 0.5) * TILE_SIZE, (ty + 0.5) * TILE_SIZE);
     this.arena.fountains.push({ x: b.x0 + 1, y: cy - 5 }, { x: b.x0 + 1, y: cy + 5 }, ...this.extraSources);

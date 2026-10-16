@@ -7,4 +7,6 @@ export type PlayerCommand =
   /** El Soporte pasa agua a otro jugador (Q9). */
   | { type: "transferWater"; toPlayer: number }
   /** El Soporte recarga su mochila en una fuente (Q9). */
-  | { type: "refill" };
+  | { type: "refill" }
+  /** El Vigía marca con el dron una zona de riesgo (celda). */
+  | { type: "markZone"; x: number; y: number };

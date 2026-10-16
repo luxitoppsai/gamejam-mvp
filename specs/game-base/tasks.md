@@ -10,6 +10,8 @@ Responsable: Luis (con Claude) | Plazo: 2026-10-18
 - [x] TGB.6 Medición de balance con bots y parámetros iniciales (AC-GB.2)
 - [x] TGB.7 Verificación en navegador del ciclo completo (AC-GB.1)
 - [x] TGB.8 Documentación SDD
+- [x] TGB.13 Vigía (M13): niebla de información, radio con reporte, dron con cámara y marcas (FR-GB.6)
+- [x] TGB.14 Iconos de ítems propios en pixel art (reemplazan los placeholders de Kenney)
 - [ ] TGB.9 Prueba con 3-4 personas y ajuste de `matchParams.ts` (AC-GB.3, Q11)
 - [ ] TGB.10 Audio por capas (M18, opcional)
 - [ ] TGB.11 Integrar red (PoC 3)
