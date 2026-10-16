@@ -1,6 +1,6 @@
 # Tareas - PoC 1
 
-Responsable: libre | Plazo: 2026-10-18
+Responsable: Luis (con Claude) | Plazo: 2026-10-18
 
 - [ ] T1.1 PRNG con semilla y utilidades de grid con checksum (NFR-1.1) - misma semilla => mismo checksum
 - [ ] T1.2 Modelo de celdas y tabla de vegetación (FR-1.1, FR-1.2) - test de contagio por vegetación
