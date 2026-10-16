@@ -1,6 +1,6 @@
 # Tareas - PoC 2
 
-Responsable: libre | Plazo: 2026-10-18
+Responsable: Luis (con Claude) | Plazo: 2026-10-18
 
 - [ ] T2.1 Movimiento top-down, cámara y colisión con tiles (FR-2.1)
 - [ ] T2.2 Entrada de teclado y gamepad para hasta 4 jugadores; bots básicos (FR-2.8)
